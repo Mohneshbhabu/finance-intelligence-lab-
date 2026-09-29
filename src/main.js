@@ -81,14 +81,14 @@ function render() {
             <div><div class="eyebrow">FINANCIAL ANALYSIS / 01</div><h1>See the numbers.<br><em>Understand the business.</em></h1><p>Turn annual financial statements into clear ratios, trends and peer context.</p></div>
             <div class="heading-pattern" aria-hidden="true">F<span>·</span></div>
           </section>
-          <div class="demo-alert"><span class="alert-icon">ⓘ</span><div><strong>Illustrative data</strong> — the three demo companies and their figures are fictional. Upload your own annual figures to analyze a real company. No upload leaves your browser.</div></div>
+          <div class="demo-alert"><span class="alert-icon">ⓘ</span><div><strong>Illustrative data</strong> — the built-in demo companies and their figures are fictional. Add a company from your own annual CSV, or remove a company from this browser session. Changes reset when you refresh; no upload leaves your browser.</div></div>
           <section class="selector-panel" aria-label="Analysis controls">
             <div class="selector-info"><span class="caption">SELECT COMPANY</span><select id="company-select" aria-label="Select company">${state.companies.map(c => `<option value="${escapeHtml(c.company)}" ${c.company === state.selected ? "selected" : ""}>${escapeHtml(c.company)}</option>`).join("")}</select></div>
             <div class="selector-divider"></div>
             <div class="selector-info"><span class="caption">SECTOR</span><strong>${escapeHtml(company.sector)}</strong></div>
             <div class="selector-divider"></div>
             <div class="selector-info"><span class="caption">PERIOD</span><strong>FY ${rows[0].year} — FY ${current.year}</strong></div>
-            <div class="selector-spacer"></div><a href="#data" class="button subtle">↑ &nbsp; Import CSV</a>
+            <div class="selector-spacer"></div><a href="#data" class="button subtle">＋ &nbsp; Add company</a><button type="button" class="button outline" id="remove-company" ${state.companies.length <= 1 ? "disabled" : ""} aria-label="Remove ${escapeHtml(company.company)} from this session">Remove company</button>
           </section>
           <div class="section-title"><div><span class="section-index">01 / OVERVIEW</span><h2>Performance snapshot</h2></div><span class="period-badge">LATEST · FY ${current.year}</span></div>
           <section class="kpis">
@@ -101,7 +101,7 @@ function render() {
           <section id="financials" class="data-section"><div class="section-title"><div><span class="section-index">02 / FINANCIALS</span><h2>Selected financials</h2></div><span class="unit-note">ALL VALUES IN ₹ CRORE</span></div><div class="panel table-panel"><div class="scroll-table"><table><thead><tr><th>Line item</th>${rows.map(r => `<th>FY ${r.year}</th>`).join("")}</tr></thead><tbody>${statementRows.map(([label,key]) => `<tr class="${key === "revenue" || key === "fcf" ? "emphasis-row" : ""}"><th scope="row">${escapeHtml(label)}</th>${rows.map(r => `<td>${escapeHtml(asNumber(r[key]))}</td>`).join("")}</tr>`).join("")}</tbody></table></div><div class="table-foot">FCF = operating cash flow − capital expenditure. These are selected line items, not complete audited statements.</div></div></section>
           <section id="ratios" class="data-section"><div class="section-title"><div><span class="section-index">03 / RATIOS</span><h2>Financial health, decoded</h2></div><span class="unit-note">FY ${current.year}</span></div><div class="ratio-grid">${ratioDefinitions.map(([name,key,formula,unit]) => `<article class="ratio-item"><div><span>${escapeHtml(name)}</span><small>${escapeHtml(formula)}</small></div><strong>${escapeHtml(cell(current[key],unit))}</strong></article>`).join("")}</div><p class="note">Average balance sheet denominators require two fiscal years; the first year displays N/A. Ratios with zero denominators also display N/A.</p></section>
           <section id="compare" class="data-section"><div class="section-title"><div><span class="section-index">04 / BENCHMARK</span><h2>Compare the peers</h2></div><label class="year-control">FISCAL YEAR <select id="year-select" aria-label="Comparison fiscal year">${years.map(y => `<option value="${y}" ${state.year === y ? "selected" : ""}>FY ${y}</option>`).join("")}</select></label></div><div class="panel table-panel"><div class="scroll-table"><table><thead><tr><th>Company</th><th>Revenue</th><th>Growth</th><th>EBITDA margin</th><th>ROE</th><th>Debt / equity</th></tr></thead><tbody>${compared.map(c => `<tr><th scope="row"><span class="peer-dot" style="background:${c.color}"></span>${escapeHtml(c.company)}</th><td>${escapeHtml(c.row ? cell(c.row.revenue) : "N/A")}</td><td>${escapeHtml(c.calculated ? cell(c.calculated.revenueGrowth,"%") : "N/A")}</td><td>${escapeHtml(c.calculated ? cell(c.calculated.ebitdaMargin,"%") : "N/A")}</td><td>${escapeHtml(c.calculated ? cell(c.calculated.roe,"%") : "N/A")}</td><td>${escapeHtml(c.calculated ? cell(c.calculated.debtEquity,"x") : "N/A")}</td></tr>`).join("")}</tbody></table></div><div class="table-foot">Demo peers share a fictional IT services sector. Comparisons depend on consistent accounting definitions and fiscal periods.</div></div></section>
-          <section id="data" class="data-section"><div class="section-title"><div><span class="section-index">05 / YOUR DATA</span><h2>Make the analysis yours</h2></div></div><div class="import-panel"><div><span class="section-index">LOCAL CSV IMPORT</span><h3>Bring your own annual data.</h3><p>Use the template, enter values from a company's annual reports, and cite the source and fiscal period in your portfolio write-up. Files are processed in this browser session only.</p><div class="import-actions"><button class="button" id="template-btn">↓ &nbsp; Download template</button><label class="button outline" for="csv-file">↑ &nbsp; Upload CSV</label><input id="csv-file" type="file" accept=".csv,text/csv" hidden></div><p class="upload-notice" role="status">${escapeHtml(state.uploadNotice)}</p></div><div class="import-steps"><div><b>01</b><span>Download the CSV template</span></div><div><b>02</b><span>Enter one company's annual figures in ₹ crore</span></div><div><b>03</b><span>Upload to calculate trends and ratios</span></div></div></div></section>
+          <section id="data" class="data-section"><div class="section-title"><div><span class="section-index">05 / YOUR DATA</span><h2>Make the analysis yours</h2></div></div><div class="import-panel"><div><span class="section-index">LOCAL CSV IMPORT</span><h3>Add a company from annual data.</h3><p>Use the template, enter values from a company's annual reports, and cite the source and fiscal period in your portfolio write-up. Add multiple companies one CSV at a time. Removing a selected company or adding a CSV affects this browser session only; refreshing resets the list.</p><div class="import-actions"><button class="button" id="template-btn">↓ &nbsp; Download template</button><label class="button outline" for="csv-file">＋ &nbsp; Add company (CSV)</label><input id="csv-file" type="file" accept=".csv,text/csv" hidden></div><p class="upload-notice" role="status">${escapeHtml(state.uploadNotice)}</p></div><div class="import-steps"><div><b>01</b><span>Download the CSV template</span></div><div><b>02</b><span>Enter one company's annual figures in ₹ crore</span></div><div><b>03</b><span>Add the CSV, then select or remove companies above</span></div></div></div></section>
           <section id="methodology" class="methodology"><span class="section-index">DATA & METHOD</span><h2>Transparent by design.</h2><p>All calculations are performed in JavaScript from the supplied annual figures. The demo data is fictional. There is no live market feed, price target, valuation, AI interpretation, or implied investment advice in this version. Debt, equity, assets and cash refer to fiscal year end; ROE, ROA, ROCE and asset turnover use two year averages. The CSV template documents required fields.</p><a href="#financials">Inspect the financials ↑</a></section>
           <footer><span>© 2026 MOHNESH BHABU · FINANCE INTELLIGENCE LAB</span><span>BUILT TO SHOW THE WORK BEHIND THE NUMBERS</span></footer>
         </div>
@@ -112,6 +112,16 @@ function render() {
   document.querySelectorAll("[data-metric]").forEach(btn => btn.addEventListener("click", () => { state.metric = btn.dataset.metric; render(); }));
   document.querySelector("#template-btn").addEventListener("click", downloadTemplate);
   document.querySelector("#csv-file").addEventListener("change", uploadCSV);
+  document.querySelector("#remove-company").addEventListener("click", removeCompany);
+}
+
+function removeCompany() {
+  if (state.companies.length <= 1) return;
+  const name = state.selected;
+  state.companies = state.companies.filter(c => c.company !== name);
+  state.selected = state.companies[0].company;
+  state.uploadNotice = `Removed ${name} from this browser session. Refresh the page to restore demo companies.`;
+  render();
 }
 
 function downloadTemplate() {
@@ -130,10 +140,10 @@ async function uploadCSV(e) {
     const rows = parseCSV(await file.text());
     const name = rows[0].company;
     const newCompany = { company: name, ticker: rows[0].ticker, sector: "Uploaded company", color: "#d5d0ff", source: `User uploaded: ${file.name}`, rows };
-    state.companies = [...demoCompanies.filter(c => c.company !== name), newCompany];
+    state.companies = [...state.companies.filter(c => c.company !== name), newCompany];
     state.selected = name;
     state.year = rows.at(-1).year;
-    state.uploadNotice = `Loaded ${rows.length} fiscal year${rows.length === 1 ? "" : "s"} for ${name}. Source: your local CSV.`;
+    state.uploadNotice = `Added ${name} with ${rows.length} fiscal year${rows.length === 1 ? "" : "s"} from your local CSV. An existing company with the same name is replaced for this session.`;
   } catch (err) {
     state.uploadNotice = `Import failed: ${err.message}`;
   }
